@@ -2,7 +2,7 @@
   "name": "fintechproject",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "expo-router/entry",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,6 +20,7 @@
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.11",
     "expo": "^52.0.46",
+    "expo-router": "^4.0.20",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "4.12.0",
