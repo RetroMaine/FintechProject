@@ -29,5 +29,3 @@ sqlparse==0.5.3
 threadpoolctl==3.6.0
 tzdata==2025.2
 urllib3==2.4.0
-nbconvert>=6.0
-nbformat>=5.0

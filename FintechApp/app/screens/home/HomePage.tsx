@@ -1,61 +1,110 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+
+import { useFocusEffect } from '@react-navigation/native';
 
 const Homepage = () => {
+  const router = useRouter();
+
+  const [creditLimit, setCreditLimit] = useState<number | null>(null);
+  const [approvalProb, setApprovalProb] = useState<number | null>(null);
+  const [loanCount,   setLoanCount]   = useState<number>(0);
+  // useEffect(() => {
+  //   const loadEstimates = async () => {
+  //     const storedLimit = await AsyncStorage.getItem('creditLimit');
+  //     const storedApproval = await AsyncStorage.getItem('approvalProbability');
+
+  //     if (storedLimit) setCreditLimit(parseFloat(storedLimit));
+  //     if (storedApproval) setApprovalProb(parseFloat(storedApproval));
+  //   };
+
+  //   loadEstimates();
+  // }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadEstimates = async () => {
+        const storedLimit = await AsyncStorage.getItem('creditLimit');
+        const storedApproval = await AsyncStorage.getItem('approvalProbability');
+        const rawLoans = await AsyncStorage.getItem('loans');
+
+        setLoanCount(rawLoans ? JSON.parse(rawLoans).length : 0);
+
+        if (storedLimit) setCreditLimit(parseFloat(storedLimit));
+        if (storedApproval) setApprovalProb(parseFloat(storedApproval));
+      };
+  
+      loadEstimates();
+    }, [])
+  );
+  
+
   const handleButtonPress = (buttonName: string) => {
     console.log(`${buttonName} pressed`);
-    // Add navigation or other logic here
+  
+    if (buttonName === 'Creditech') {
+      router.push('/screens/credit/Estimator');
+    } else if (buttonName === 'Loan Dashboard') {
+      router.push('/screens/credit/ApprovalRate');
+    } else if (buttonName === 'AI Chatbot'){
+      router.push('/screens/advise/Chatbot'); 
+    }
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Homepage</Text>
+      <Text style={styles.header}>Overview</Text>
       
       <View style={styles.buttonContainer}>
-        {/* Creditech Button */}
+        {/* Creditech Results */}
         <TouchableOpacity 
           style={styles.button} 
           onPress={() => handleButtonPress('Creditech')}
         >
           <Text style={styles.buttonTitle}>Creditech</Text>
-          <Text style={styles.buttonContainer}>Approval and credit estimator</Text>
-          <Text style={styles.buttonSubText}>620</Text>
+          <Text style={styles.buttonSubText}>
+            {creditLimit !== null ? `Credit Line: $${creditLimit.toLocaleString()}` : 'No estimate yet'}
+          </Text>
+          <Text style={styles.buttonSubText}>
+            {approvalProb !== null ? `Approval Chance: ${(approvalProb * 100).toFixed(1)}%` : ''}
+          </Text>
         </TouchableOpacity>
 
-        {/* Loan Dashboard Button */}
+        {/* Loan Dashboard */}
         <TouchableOpacity 
           style={styles.button} 
           onPress={() => handleButtonPress('Loan Dashboard')}
         >
           <Text style={styles.buttonTitle}>Loan Dashboard</Text>
-          <Text style={styles.buttonSubText}>3 active loans</Text>
+          <Text style={styles.buttonSubText}>View your loan status</Text>
+          <Text style={styles.buttonSubText}>
+            {loanCount === 0
+            ? 'No active loans'
+            : `${loanCount} active loan${loanCount > 1 ? 's' : ''}`}
+          </Text>
         </TouchableOpacity>
 
-        {/* Budget Analysis Button */}
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => handleButtonPress('Budget Analysis')}
+          onPress={() => handleButtonPress('AI Chatbot')}
         >
-          <Text style={styles.buttonTitle}>Budget Analysis</Text>
-          <Text style={styles.buttonSubText}>$4.7k remaining</Text>
+          <Text style={styles.buttonTitle}>AI Chatbot</Text>
+          <Text style={styles.buttonSubText}>Ask financial questions</Text>
         </TouchableOpacity>
 
-        {/* Spending Analysis Button */}
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => handleButtonPress('Spending Analysis')}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push('/screens/advise/InsightPage')}
         >
-          <Text style={styles.buttonTitle}>Spending Analysis</Text>
-          <Text style={styles.buttonSubText}>620</Text>
+          <Text style={styles.buttonTitle}>Financial Analysis</Text>
+          <Text style={styles.buttonSubText}>AI-generated insights</Text>
         </TouchableOpacity>
 
-        {/* Home Button
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => handleButtonPress('Home')}
-        >
-          <Text style={styles.buttonTitle}>Home</Text>
-        </TouchableOpacity> */}
+
+
       </View>
     </SafeAreaView>
   );
@@ -77,7 +126,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   button: {
-    backgroundColor: '#C7EFFF', // Dodger blue color
+    backgroundColor: '#C7EFFF',
     borderRadius: 10,
     padding: 25,
     width: '100%',
@@ -88,12 +137,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
     marginBottom: 8,
-  },
-  buttonLargeNumber: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 5,
   },
   buttonSubText: {
     fontSize: 14,

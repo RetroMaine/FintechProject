@@ -4,7 +4,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env") 
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -13,7 +14,6 @@ MONGO_PASS = os.getenv("MONGO_DB_PASS")
 DB_NAME    = os.getenv("DB_NAME")
 MONGODB_URI = os.getenv("MONGODB_URI")
 
-SECRET_KEY = "your-secret-key"
 DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", "10.165.172.169"]
 
@@ -35,6 +35,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:19000",
     "http://localhost:19001",
     "http://localhost:19002",
+    "http://localhost:8081",
     "exp://10.165.172.169:8081",  # Expo tunnel
 ]
 

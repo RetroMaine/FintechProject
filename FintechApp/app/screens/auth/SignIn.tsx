@@ -1,29 +1,51 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-console.log("SignUp screen loaded");
 
-export default function SignUpScreen() {
+export default function SignInScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignUp = () => {
+  const handleSignIn = async() => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Error', 'Please enter both email and password');
       return;
     }
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/signin/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+    console.log('SignIn response:', data);
+
+    if (response.ok) {
+      await AsyncStorage.setItem('userId', data.userId);
+      await new Promise(res => setTimeout(res, 100)); // small manual delay
+      router.replace('/screens/credit/Estimator');
+    } else {
+      Alert.alert('Sign In Failed', data.error || 'Unknown error');
+    }
+  } catch (error) {
+    console.error('Sign In Error:', error);
+    Alert.alert('Error', 'Unable to connect to server');
+  }
+};
     
-    console.log('Navigating to Estimator');
-    // For MVP, skip the API call and go straight to Estimator
-    router.replace('/screens/credit/Estimator');
-  };
+  //   console.log('Navigating to Estimator');
+  //   // For MVP, skip the API call and go straight to Estimator
+  //   router.replace('/screens/credit/Estimator');
+  // };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
-      
       <View style={styles.form}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
@@ -50,16 +72,16 @@ export default function SignUpScreen() {
 
         <TouchableOpacity 
           style={styles.button}
-          onPress={handleSignUp}
+          onPress={handleSignIn}
         >
           <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.linkContainer}
-          onPress={() => router.push('/screens/auth/SignIn')}
+          onPress={() => router.push('/screens/auth/SignUp')}
         >
-          <Text style={styles.linkText}>Already have an account? Sign In</Text>
+          <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -71,12 +93,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
   },
   form: {
     flex: 1,
@@ -118,4 +134,4 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontSize: 16,
   },
-});
+}); 
